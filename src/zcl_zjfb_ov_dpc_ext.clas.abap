@@ -12,6 +12,8 @@ protected section.
     redefinition .
   methods OVCABSET_CREATE_ENTITY
     redefinition .
+  methods OVCABSET_DELETE_ENTITY
+    redefinition .
   methods OVCABSET_GET_ENTITY
     redefinition .
   methods OVCABSET_GET_ENTITYSET
@@ -25,6 +27,8 @@ protected section.
   methods OVITEMSET_GET_ENTITYSET
     redefinition .
   methods OVITEMSET_UPDATE_ENTITY
+    redefinition .
+  methods OVITEMSET_DELETE_ENTITY
     redefinition .
 private section.
 ENDCLASS.
@@ -418,6 +422,90 @@ CLASS ZCL_ZJFB_OV_DPC_EXT IMPLEMENTATION.
       EXPORTING
         iv_msg_type = 'E'
         iv_msg_text = 'Erro ao atualizar item'
+    ).
+
+    RAISE EXCEPTION type /iwbep/cx_mgw_busi_exception
+      EXPORTING
+        message_container = lo_msg.
+  ENDIF.
+
+  endmethod.
+
+
+  METHOD ovcabset_delete_entity.
+
+    DATA: ls_key_tab LIKE LINE OF it_key_tab.
+
+    DATA(lo_msg) = me->/iwbep/if_mgw_conv_srv_runtime~get_message_container( ).
+
+    READ TABLE it_key_tab INTO ls_key_tab WITH KEY name = 'OrdemId'.
+    IF sy-subrc <> 0.
+      lo_msg->add_message_text_only(
+        EXPORTING
+          iv_msg_type = 'E'
+          iv_msg_text = 'OrdemId não informado'
+      ).
+
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+        EXPORTING
+          message_container = lo_msg.
+    ENDIF.
+
+    DELETE FROM zjfb_ovitem WHERE ordemid = ls_key_tab-value.
+    " Comentando validação pois algumas ordens podem
+    " não tem itens
+*  IF sy-subrc <> 0.
+*    ROLLBACK WORK.
+*
+*    lo_msg->add_message_text_only(
+*      EXPORTING
+*        iv_msg_type = 'E'
+*        iv_msg_text = 'Erro ao remover itens'
+*    ).
+*
+*    RAISE EXCEPTION type /iwbep/cx_mgw_busi_exception
+*      EXPORTING
+*        message_container = lo_msg.
+*  ENDIF.
+
+    DELETE FROM zjfb_ovcab WHERE ordemid = ls_key_tab-value.
+    IF sy-subrc <> 0.
+      ROLLBACK WORK.
+
+      lo_msg->add_message_text_only(
+        EXPORTING
+          iv_msg_type = 'E'
+          iv_msg_text = 'Erro ao remover ordem'
+      ).
+
+      RAISE EXCEPTION TYPE /iwbep/cx_mgw_busi_exception
+        EXPORTING
+          message_container = lo_msg.
+    ENDIF.
+
+    COMMIT WORK AND WAIT.
+
+  ENDMETHOD.
+
+
+  method OVITEMSET_DELETE_ENTITY.
+
+  DATA: ls_item    TYPE zjfb_ovitem.
+  DATA: ls_key_tab LIKE LINE OF it_key_tab.
+
+  DATA(lo_msg) = me->/iwbep/if_mgw_conv_srv_runtime~get_message_container( ).
+
+  ls_item-ordemid = it_key_tab[ name = 'OrdemId' ]-value.
+  ls_item-itemid  = it_key_tab[ name = 'ItemId' ]-value.
+
+  DELETE FROM zjfb_ovitem
+   WHERE ordemid = ls_item-ordemid
+     AND itemid  = ls_item-itemid.
+  IF sy-subrc <> 0.
+    lo_msg->add_message_text_only(
+      EXPORTING
+        iv_msg_type = 'E'
+        iv_msg_text = 'Erro ao remover item'
     ).
 
     RAISE EXCEPTION type /iwbep/cx_mgw_busi_exception
