@@ -132,35 +132,35 @@ CLASS ZCL_ZJFB_OV_DPC_EXT IMPLEMENTATION.
     DATA: ls_cab       TYPE zjfb_ovcab.
     DATA: ls_entityset LIKE LINE OF et_entityset.
 
-*    DATA: lt_orderby   TYPE STANDARD TABLE OF string.
-*    DATA: ld_orderby   TYPE string.
-*
-*    " montando orderby dinâmico
-*    LOOP AT it_order INTO DATA(ls_order).
-*      TRANSLATE ls_order-property TO UPPER CASE.
-*      TRANSLATE ls_order-order TO UPPER CASE.
-*      IF ls_order-order = 'DESC'.
-*        ls_order-order = 'DESCENDING'.
-*      ELSE.
-*        ls_order-order = 'ASCENDING'.
-*      ENDIF.
-*      APPEND |{ ls_order-property } { ls_order-order }|
-*          TO lt_orderby.
-*    ENDLOOP.
-*    CONCATENATE LINES OF lt_orderby INTO ld_orderby SEPARATED BY ''.
-*
-*    " ordenação obrigatória caso nenhuma seja definida
-*    IF ld_orderby = '' .
-*      ld_orderby = 'OrdemId ASCENDING'.
-*    ENDIF.
-*
-*    SELECT *
-*      FROM zjfb_ovcab
-*     WHERE (iv_filter_string)
-*  ORDER BY (ld_orderby)
-*      INTO TABLE @lt_cab
-*     UP TO @is_paging-top ROWS
-*    OFFSET @is_paging-skip.
+    DATA: lt_orderby   TYPE STANDARD TABLE OF string.
+    DATA: ld_orderby   TYPE string.
+
+    " montando orderby dinâmico
+    LOOP AT it_order INTO DATA(ls_order).
+      TRANSLATE ls_order-property TO UPPER CASE.
+      TRANSLATE ls_order-order TO UPPER CASE.
+      IF ls_order-order = 'DESC'.
+        ls_order-order = 'DESCENDING'.
+      ELSE.
+        ls_order-order = 'ASCENDING'.
+      ENDIF.
+      APPEND |{ ls_order-property } { ls_order-order }|
+          TO lt_orderby.
+    ENDLOOP.
+    CONCATENATE LINES OF lt_orderby INTO ld_orderby SEPARATED BY ''.
+
+    " ordenação obrigatória caso nenhuma seja definida
+    IF ld_orderby = '' .
+      ld_orderby = 'OrdemId ASCENDING'.
+    ENDIF.
+
+    SELECT *
+      FROM zjfb_ovcab
+     WHERE (iv_filter_string)
+  ORDER BY (ld_orderby)
+      INTO TABLE @lt_cab
+     UP TO @is_paging-top ROWS
+    OFFSET @is_paging-skip.
 
     SELECT *
       INTO TABLE lt_cab
