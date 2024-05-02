@@ -6,6 +6,21 @@ class ZCL_ZJFB_OV_MPC definition
 public section.
 
   types:
+    begin of TS_ZJFB_FI_ATUALIZA_STATUS,
+        ID_STATUS type C length 1,
+        ID_ORDEMID type I,
+    end of TS_ZJFB_FI_ATUALIZA_STATUS .
+  types:
+   begin of ts_text_element,
+      artifact_name  type c length 40,       " technical name
+      artifact_type  type c length 4,
+      parent_artifact_name type c length 40, " technical name
+      parent_artifact_type type c length 4,
+      text_symbol    type textpoolky,
+   end of ts_text_element .
+  types:
+         tt_text_elements type standard table of ts_text_element with key text_symbol .
+  types:
   begin of TS_OVCAB,
      ORDEMID type I,
      DATACRIACAO type TIMESTAMP,
@@ -18,16 +33,6 @@ public section.
   end of TS_OVCAB .
   types:
 TT_OVCAB type standard table of TS_OVCAB .
-  types:
-   begin of ts_text_element,
-      artifact_name  type c length 40,       " technical name
-      artifact_type  type c length 4,
-      parent_artifact_name type c length 40, " technical name
-      parent_artifact_type type c length 4,
-      text_symbol    type textpoolky,
-   end of ts_text_element .
-  types:
-         tt_text_elements type standard table of ts_text_element with key text_symbol .
   types:
   begin of TS_OVITEM,
      ORDEMID type I,
@@ -93,6 +98,9 @@ private section.
   methods DEFINE_ASSOCIATIONS
     raising
       /IWBEP/CX_MGW_MED_EXCEPTION .
+  methods DEFINE_ACTIONS
+    raising
+      /IWBEP/CX_MGW_MED_EXCEPTION .
 ENDCLASS.
 
 
@@ -115,6 +123,7 @@ define_ovcab( ).
 define_ovitem( ).
 define_mensagem( ).
 define_associations( ).
+define_actions( ).
   endmethod.
 
 
@@ -663,7 +672,7 @@ lo_entity_set->set_filter_required( abap_false ).
 *&---------------------------------------------------------------------*
 
 
-  CONSTANTS: lc_gen_date_time TYPE timestamp VALUE '20240430202105'.                  "#EC NOTEXT
+  CONSTANTS: lc_gen_date_time TYPE timestamp VALUE '20240502193952'.                  "#EC NOTEXT
   rv_last_modified = super->get_last_modified( ).
   IF rv_last_modified LT lc_gen_date_time.
     rv_last_modified = lc_gen_date_time.
@@ -951,5 +960,41 @@ lo_entity_type = model->get_entity_type( iv_entity_name = 'OVCab' ). "#EC NOTEXT
 lo_nav_property = lo_entity_type->create_navigation_property( iv_property_name  = 'toOVItem' "#EC NOTEXT
                                                               iv_abap_fieldname = 'TOOVITEM' "#EC NOTEXT
                                                               iv_association_name = 'CabItem' ). "#EC NOTEXT
+  endmethod.
+
+
+  method DEFINE_ACTIONS.
+*&---------------------------------------------------------------------*
+*&           Generated code for the MODEL PROVIDER BASE CLASS         &*
+*&                                                                     &*
+*&  !!!NEVER MODIFY THIS CLASS. IN CASE YOU WANT TO CHANGE THE MODEL  &*
+*&        DO THIS IN THE MODEL PROVIDER SUBCLASS!!!                   &*
+*&                                                                     &*
+*&---------------------------------------------------------------------*
+
+
+data:
+lo_action         type ref to /iwbep/if_mgw_odata_action,                 "#EC NEEDED
+lo_parameter      type ref to /iwbep/if_mgw_odata_parameter.              "#EC NEEDED
+
+***********************************************************************************************************************************
+*   ACTION - ZJFB_FI_ATUALIZA_STATUS
+***********************************************************************************************************************************
+
+lo_action = model->create_action( 'ZJFB_FI_ATUALIZA_STATUS' ).  "#EC NOTEXT
+*Set return entity type
+lo_action->set_return_entity_type( 'Mensagem' ). "#EC NOTEXT
+* Set return type multiplicity
+lo_action->set_return_multiplicity( 'M' ). "#EC NOTEXT
+***********************************************************************************************************************************
+* Parameters
+***********************************************************************************************************************************
+
+lo_parameter = lo_action->create_input_parameter( iv_parameter_name = 'ID_STATUS'    iv_abap_fieldname = 'ID_STATUS' ). "#EC NOTEXT
+lo_parameter->/iwbep/if_mgw_odata_property~set_type_edm_string( ).
+lo_parameter->set_maxlength( iv_max_length = 1 ). "#EC NOTEXT
+lo_parameter = lo_action->create_input_parameter( iv_parameter_name = 'ID_ORDEMID'    iv_abap_fieldname = 'ID_ORDEMID' ). "#EC NOTEXT
+lo_parameter->/iwbep/if_mgw_odata_property~set_type_edm_int32( ).
+lo_action->bind_input_structure( iv_structure_name  = 'ZCL_ZJFB_OV_MPC=>TS_ZJFB_FI_ATUALIZA_STATUS' ). "#EC NOTEXT
   endmethod.
 ENDCLASS.
