@@ -653,10 +653,15 @@ CLASS ZCL_ZJFB_OV_DPC_EXT IMPLEMENTATION.
 
   METHOD /iwbep/if_mgw_appl_srv_runtime~execute_action.
 
-    DATA: ld_ordemid  TYPE zJFB_ovcab-ordemid.
-    DATA: ld_status   TYPE zJFB_ovcab-status.
-    DATA: lt_bapiret2 TYPE STANDARD TABLE OF zcl_zjfb_ov_mpc_ext=>ts_mensagem.
-    DATA: ls_bapiret2 TYPE zcl_zjfb_ov_mpc_ext=>ts_mensagem.
+    DATA: ld_ordemid  type zJFB_ovcab-ordemid.
+    DATA: ld_status   type zJFB_ovcab-status.
+* Para function import usando Entity_tipo {
+*    DATA: lt_bapiret2 type STANDARD TABLE OF zcl_zjfb_ov_mpc_ext=>ts_mensagem.
+*    DATA: ls_bapiret2 type zcl_zjfb_ov_mpc_ext=>ts_mensagem.
+* Para function import usando Entity_tipo }
+
+    DATA: lt_bapiret2 type STANDARD TABLE OF zcl_zjfb_ov_mpc_ext=>ct_mensagem.
+    DATA: ls_bapiret2 type zcl_zjfb_ov_mpc_ext=>ct_mensagem.
 
     IF iv_action_name = 'ZJFB_FI_ATUALIZA_STATUS'.
       ld_ordemid = it_parameter[ name = 'ID_ORDEMID' ]-value.
@@ -668,13 +673,13 @@ CLASS ZCL_ZJFB_OV_DPC_EXT IMPLEMENTATION.
 
       IF sy-subrc = 0.
         CLEAR ls_bapiret2.
-        ls_bapiret2-type    = 'S'.
-        ls_bapiret2-message = 'Status atualizado'.
+        ls_bapiret2-tipo    = 'S'.
+        ls_bapiret2-mensagem = 'Status atualizado'.
         APPEND ls_bapiret2 TO lt_bapiret2.
       ELSE.
         CLEAR ls_bapiret2.
-        ls_bapiret2-type    = 'E'.
-        ls_bapiret2-message = 'Erro ao atualizar status'.
+        ls_bapiret2-tipo    = 'E'.
+        ls_bapiret2-mensagem = 'Erro ao atualizar status'.
         APPEND ls_bapiret2 TO lt_bapiret2.
       ENDIF.
     ENDIF.
